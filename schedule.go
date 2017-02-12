@@ -3,15 +3,16 @@ package main
 import (
 	"fmt"
 	//	"./model"
-	"io"
+	//	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
+	//	"os"
 	"regexp"
 	"strconv"
 
-	"./win007"
+	"./src"
+
 	"github.com/PuerkitoBio/goquery"
 )
 
@@ -26,23 +27,14 @@ func ResToStr(response *http.Response) string {
 	return ""
 }
 
-func ThreadSchedule(ch chan int, scheid string) {
-	referee, err := win007.FetchReferee(scheid)
-	if err == nil {
-		doc, err := goquery.NewDocumentFromResponse(referee)
-		if err == nil {
-			trs := doc.Find("#content").Eq(0).Find("table").Eq(0).Find("table").Eq(0).Find("tr")
-
-			trs.Each(func(i int, s *goquery.Selection) {
-
-			})
-		}
-	}
+func GetSchedule(ch chan int, scheid string) {
+	fmt.Println("开启采集赛程线程" + scheid)
+	src.FetchASchedule(scheid)
 	ch <- 1
 }
 
 func main() {
-	sches_res, err := win007.FetchSchedule("20170210")
+	sches_res, err := src.FetchScheduleFromDate("20170210")
 	if err == nil {
 		doc, err := goquery.NewDocumentFromResponse(sches_res)
 		if err != nil {
@@ -61,7 +53,7 @@ func main() {
 				scheid = reg.FindString(onclick)
 			}
 			chs[i] = make(chan int)
-			go ThreadSchedule(chs[i], scheid)
+			go GetSchedule(chs[i], scheid)
 		})
 		for _, ch := range chs {
 			total++
