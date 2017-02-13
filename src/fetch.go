@@ -1,10 +1,11 @@
 package src
 
 import (
-	//	"fmt"
+	"fmt"
 	//	"io/ioutil"
-	"log"
+	//	"log"
 	"net/http"
+	"time"
 )
 
 func FetchScheduleFromDate(date string) (*http.Response, error) {
@@ -24,15 +25,15 @@ func FetchReferee(scheid string) (*http.Response, error) {
 
 func FetchAnanly(scheid string) (*http.Response, error) {
 	url := "http://zq.win007.com/analysis/" + scheid + "sb.htm"
+	fmt.Println(url)
 	return SimpleGet(url)
 }
 
 func SimpleGet(url string) (*http.Response, error) {
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		log.Fatal(err.Error())
+	timeout := time.Duration(5 * time.Second)
+	client := &http.Client{
+		Timeout: timeout,
 	}
-	resp, err := client.Do(req)
+	resp, err := client.Get(url)
 	return resp, err
 }
