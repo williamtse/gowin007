@@ -26,10 +26,11 @@ type Schedule struct {
 	SecStartTime int
 	Status       int
 	Scores       Score
+	ac           *ActiveRecord
 }
 
 //采集单个赛程
-func FetchASchedule(scheid string) {
+func FetchASchedule(scheid string, leagueColor string) {
 	if scheid == "0" {
 		return
 	}
@@ -87,6 +88,14 @@ func FetchASchedule(scheid string) {
 			leagueNameMatches := strings.Split(leagueStr, " ")
 
 			leagueName := leagueNameMatches[0]
+			ar := ActiveRecord{table: "league"}
+			league, err := ar.Find("name='" + leagueName + "'")
+			if !league {
+				ar.isNew = true
+				league = League{name: leagueName, color: color, ar: ar}
+				league.Save()
+			}
+
 			fmt.Println(leagueId)
 			fmt.Println(leagueName)
 			if len(time) < 5 {
@@ -103,7 +112,21 @@ func FetchASchedule(scheid string) {
 
 }
 
-func save(ac *ActiveRecord, sche *Schedule) error {
-	ac.tableName("schedule")
-	return nil
+func (sche *Schedule) save() error {
+	db, err := OpenDB()
+	CheckErr(err)
+	rows, err := db.Query("select * from " + sche.Table + " where id=" + scheid)
+	CheckErr(err)
+	fmt.Println(rows)
+	if !sche.ar.isNew {
+		stmt, err := db.Prepare("INSERT INTO " + sche.ar.table + " (id,)values(?,?)")
+	} else {
+		stmt, err := db.Prepare("UPDATE " + sche.ar.table + " set ")
+	}
+	CheckErr(err)
+	res, err := stmt.Exec(scheid, sche)
+	CheckErr(err)
+	fmt.Println(res)
+	defer db.Close()
+	return res, err
 }

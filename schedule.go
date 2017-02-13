@@ -34,22 +34,10 @@ func GetSchedule(ch chan int, s *goquery.Selection, i int) {
 		color, _ := leagueTd.Attr("bgcolor")
 		reg := regexp.MustCompile("[0-9]+")
 		scheid := reg.FindString(onclick)
-		db, err := src.OpenDB()
-		src.CheckErr(err)
-		rows, err := db.Query("select * from schedule_copy where id=" + scheid)
-		src.CheckErr(err)
-		fmt.Println(rows)
-		if rows == nil {
-			stmt, err := db.Prepare("INSERT INTO schedule_copy (id,color)values(?,?)")
-			src.CheckErr(err)
-			res, err := stmt.Exec(scheid, color)
-			src.CheckErr(err)
-			fmt.Println(res)
-			defer db.Close()
-		}
+
 		fmt.Println("赛程id:" + scheid + ";联赛颜色：" + color)
 		fmt.Println("采集赛程分析页面" + scheid)
-		src.FetchASchedule(scheid)
+		src.FetchASchedule(scheid, leagueColor)
 	}
 
 	ch <- 1
