@@ -8,7 +8,7 @@ type League struct {
 	id    int
 	name  string
 	color string
-	ar    *ActiveRecord
+	ar    ActiveRecord
 }
 
 func (league *League) Save() (sql.Result, error) {

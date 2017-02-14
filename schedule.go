@@ -17,6 +17,7 @@ import (
 )
 
 var total int = 0
+var db, _ = src.OpenDB()
 
 func ResToStr(response *http.Response) string {
 	if response.StatusCode == 200 {
@@ -37,7 +38,7 @@ func GetSchedule(ch chan int, s *goquery.Selection, i int) {
 
 		fmt.Println("赛程id:" + scheid + ";联赛颜色：" + color)
 		fmt.Println("采集赛程分析页面" + scheid)
-		src.FetchASchedule(scheid, leagueColor)
+		src.FetchASchedule(scheid, color)
 	}
 
 	ch <- 1
